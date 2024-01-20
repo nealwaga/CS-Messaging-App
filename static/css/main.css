@@ -127,13 +127,13 @@ File: Main Style
 }
 
 .semi-dark {
-    --sidebarbg: #333333;
+    --sidebarbg: #060818;
     --sidebarcolor: rgba(255,255,255,0.8);
     --sidebarbordercolor: rgba(255,255,255,0.1);
     --sidebaractivecolor: #4c75f2;
     --sidebarheadingcolor: #fff;
     --sidebarheadingbackground: rgba(59, 63, 92, 0.35);
-    --logobg: #333333;
+    --logobg: #060818;
     --logocolor: rgba(255,255,255,0.8);
 }
 
@@ -696,7 +696,7 @@ main {
 }
 
 a {
-    color: white;
+    color: var(--bodycolor);
     text-decoration: none;
 }
 
@@ -1699,16 +1699,6 @@ footer.site-footer {
     margin-top: 20px;
     margin-left: 250px;
 }
-
-/* The style below makes the footer too always be at the bottom of the page */
-footer.site-footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    text-align: center;
-    padding: 10px 0;
-  }
 
 @media (max-width: 991px) {
     footer.site-footer {

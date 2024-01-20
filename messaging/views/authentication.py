@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views import View
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout as auth_logout
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from messaging.forms.authentication import AgentRegistrationForm, AgentLoginForm
@@ -52,7 +53,7 @@ class AgentLogin(View):
             user = authenticate(request, email=form.cleaned_data['email'], password=form.cleaned_data['password'])
             if user:
                 login(request, user)
-                return redirect('dashboard')
+                return redirect('chats')
             else:
                 messages.error(request, 'Invalid email or password.')
                 form = AgentLoginForm()
@@ -64,3 +65,10 @@ class AgentLogin(View):
             'form': form
         }
         return render(request, self.template_name, context)
+    
+
+@login_required
+def logout(request):
+    auth_logout(request)
+    messages.success(request, f"Successfully logged out")
+    return redirect('login')
