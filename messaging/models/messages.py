@@ -3,12 +3,12 @@ from django.db import models
 from .agents import Agent
 
 # Create here
-class Customer(models.Model):
+class Customers(models.Model):
     full_name = models.CharField(max_length=100, blank=True, null=True)
 
 
 class Chats(models.Model):
-    sender = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='chat_sender')
+    sender = models.ForeignKey(Customers, on_delete=models.CASCADE, related_name='chat_sender')
     date_created = models.DateTimeField(auto_now_add=True)
 
     @property
@@ -20,14 +20,14 @@ class Chats(models.Model):
 
 
 
-class Message(models.Model):
+class Messages(models.Model):
     SENDER_TYPES = (
         ('customer', 'Customer'),
         ('agent', 'Agent'),
     )
 
     sender_type = models.CharField(max_length=10, choices=SENDER_TYPES, default='customer', null=True)
-    sender = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='message_sender', null=True)
+    sender = models.ForeignKey(Customers, on_delete=models.CASCADE, related_name='message_sender', null=True)
     recipient = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='message_recipient', null=True)
     chat = models.ForeignKey(Chats, on_delete=models.CASCADE, related_name='chat_messages', null=True)
     message_body = models.TextField()
