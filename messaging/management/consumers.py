@@ -24,7 +24,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
     # Receive message from WebSocket
-    async def recieve(self, text_data):
+    async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         text = text_data_json["text"]
         sender_id = text_data_json.get("senderId")
@@ -70,7 +70,7 @@ class SaveMessageThread(threading.Thread):
             sender_id = self.sender_id,
             recipient_id = self.recipient_id,
             chat = chat,
-            message = self.text,
-            date_created = timezone.now()
+            message_body = self.text,
+            timestamp = timezone.now()
         )
         print(f"{bcolors.OKGREEN} ✓ SUCCESS! MESSAGE SAVED!{bcolors.ENDC}")

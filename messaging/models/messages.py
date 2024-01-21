@@ -13,7 +13,8 @@ class Chats(models.Model):
 
     @property
     def messages(self):
-        return self.chat_messages.all()
+        return self.chat_messages.all().values('timestamp', 'pk', 'message_body', 'recipient', 'sender_full_name',
+                                               'sender_type')
     
     class Meta:
         ordering = ['-date_created']
