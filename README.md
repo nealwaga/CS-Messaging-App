@@ -24,7 +24,7 @@ After extracting the files,
 1. `` docker exec -it <backend_service_name> python manage.py makemigrations ``
 2. `` docker exec -it <backend_service_name> python manage.py migrate ``
 
-### Installating CSV File Data
+### Installing the CSV File Data
 When the application is running, open a new terminal,
 1. `` docker ps ``
 2. `` docker exec -it <backend_service_name> bash ``
