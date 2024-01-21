@@ -5,9 +5,8 @@
 ## SetUp / Installation Requirements
 ### Cloning
 * In your terminal:
-
-    >``$ git clone https://github.com/nealwaga/CS-Messaging-App``
-    >``$ cd CS-Messaging-App``
+1. ``$ git clone https://github.com/nealwaga/CS-Messaging-App``
+2. ``$ cd CS-Messaging-App``
 
 ### Running the Application
 After extracting the files,
@@ -27,7 +26,7 @@ After extracting the files,
 
 ### Installating CSV File Data
 When the application is running, open a new terminal,
->`` docker ps ``
-> `` docker exec -it <backend_service_name> bash ``
-> `` python manage.py shell ``
-> `` import save_data ``
+1. `` docker ps ``
+2. `` docker exec -it <backend_service_name> bash ``
+3. `` python manage.py shell ``
+4. `` import save_data ``
