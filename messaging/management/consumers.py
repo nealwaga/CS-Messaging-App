@@ -32,6 +32,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         chat_id = text_data_json.get("chatId")
 
         # Save message thread
+        save = SaveMessageThread(text, chat_id, sender_id, recipient_id)
+        save.start()
+        print(f"{bcolors.OKGREEN} ✓ MESSAGE SAVED!{bcolors.ENDC}")
 
         # Send message to room group
         await self.channel_layer.group_send(
@@ -45,3 +48,29 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # Send message to WebSocket
         await self.send(text_data=json.dumps({"text": text}))
+
+
+class SaveMessageThread(threading.Thread):
+    def __init__(self, text, chat_id, sender_id, recipient_id):
+        threading.Thread.__init__(self)
+        self.chat_id = chat_id
+        self.sender_id = sender_id
+        self.recipient_id = recipient_id
+        self.text = text
+
+    def run(self):
+        try:
+            chat = Chats.objects.get(id=self.chat_id)
+            print(f"{bcolors.OKGREEN} ✓ SUCCESS! CHAT EXISTS{bcolors.ENDC}")
+        except Chats.DoesNotExist:
+            print(f"{bcolors.WARNING} ✖ CHAT DOES NOT EXIST!{bcolors.FAIL}")
+
+        message = Messages.objects.create(
+            sender_type = 'agent',
+            sender_id = self.sender_id,
+            recipient_id = self.recipient_id,
+            chat = chat,
+            message = self.text,
+            date_created = timezone.now()
+        )
+        print(f"{bcolors.OKGREEN} ✓ SUCCESS! MESSAGE SAVED!{bcolors.ENDC}")
