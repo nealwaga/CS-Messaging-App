@@ -40,21 +40,22 @@
                         <div class="tab-content">
                             <div class="tab-pane fade show active" id="tabs-day" role="tabpanel" aria-labelledby="tabs-day-tab">
                                 <ul class="nav flex-column chat-menu" id="myTab" role="tablist">
+                                    {% for recipient in recipients %}
                                     <li class="nav-item active px-3">
-                                        <a class="nav-link online-status green" data-toggle="tab" href="#tab1" role="tab" aria-selected="true">
+                                        <a onclick='getChats("{{recipient.pk}}")' class="nav-link online-status green" data-toggle="tab" href="#tab1" role="tab" aria-selected="true">
                                             <div class="media d-block d-flex text-left py-2">
                                                 <img class="img-fluid mr-3 rounded-circle" src="/static/images/author2.jpg" alt="">
                                                 <div class="media-body align-self-center mt-0 color-primary d-flex">
-                                                    <div class="message-content"> <b class="mb-1 font-weight-bold d-flex">Harry Jones</b>
+                                                    <div class="message-content"> <b class="mb-1 font-weight-bold d-flex">{{recipient.full_name}}</b>
                                                         How are you? ... 
                                                         <br>
                                                         <small class="body-color">23 hours ago</small></div>
                                                     <div class="new-message ml-auto bg-primary text-white">3</div>
-
                                                 </div>
                                             </div>
                                         </a>
                                     </li>
+                                    {% endfor %}
                                 </ul>                                                    
                             </div>
 
@@ -101,54 +102,27 @@
                                         </li>
                                     </ul>
                                 
-                                    <div class="scrollerchat p-3">   
-
-                                        <div class="media d-flex  mb-4">
-                                            <div class="p-3 ml-auto speech-bubble">
-                                                Hello John, how can I help you today ?
+                                    <div id="chat" class="scrollerchat p-3">   
+                                        <ul class="mb-0" id="chat-ul" style="display:flex; flex-direction: column-reverse;">
+                                            <div class="media d-flex mb-4">
+                                                <div class="p-3 ml-auto speech-bubble">
+                                                    Hello John, how can I help you today ?
+                                                </div>
+                                                <div class="ml-4"><a href="#"><img src="/static/images/author3.jpg" alt="" class="img-fluid rounded-circle" /></a></div>
                                             </div>
-                                            <div class="ml-4"><a href="#"><img src="/static/images/author3.jpg" alt="" class="img-fluid rounded-circle" /></a></div>
-                                        </div>
-                                        <div class="media d-flex mb-4">
-                                            <div class="mr-4 thumb-img"><a href="#"><img src="/static/images/author2.jpg" alt="" class="img-fluid rounded-circle" /></a></div>
-                                            <div class="p-3 mr-auto speech-bubble alt">
-                                                Hi, I want to buy a new shoes.
+                                            <div class="media d-flex mb-4">
+                                                <div class="mr-4 thumb-img"><a href="#"><img src="/static/images/author2.jpg" alt="" class="img-fluid rounded-circle" /></a></div>
+                                                <div class="p-3 mr-auto speech-bubble alt">
+                                                    Hi, I want to buy a new shoes.
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="media d-flex mb-4">
-                                            <div class="p-3 ml-auto speech-bubble">
-                                                Shipment is free. You'll get your shoes tomorrow!<br/>
-                                                <img src="/static/images/shoes.jpg" alt="" width="300" class="img-fluid mt-2" />
-                                            </div>
-                                            <div class="ml-4"><a href="#"><img src="/static/images/author3.jpg" alt="" class="img-fluid rounded-circle" /></a></div>
-                                        </div>
-
-                                        <div class="media d-flex mb-4">
-                                            <div class="mr-4 thumb-img"><a href="#"><img src="/static/images/author2.jpg" alt="" class="img-fluid rounded-circle" /></a></div>
-                                            <div class="p-3 mr-auto speech-bubble alt">
-                                                Wow that's great!
-                                            </div>
-                                        </div>
-                                        <div class="media d-flex mb-4">
-                                            <div class="mr-4 thumb-img"><a href="#"><img src="/static/images/author2.jpg" alt="" class="img-fluid rounded-circle" /></a></div>
-                                            <div class="p-3 mr-auto speech-bubble alt">
-                                                Ok. Thanks for the answer. Appreciated.<br/>
-                                                <div class='embed-container mt-2'><iframe src='https://player.vimeo.com/video/66140585' class="border-0" allowFullScreen></iframe></div>
-                                            </div>
-                                        </div>
-                                        <div class="media d-flex mb-4">
-                                            <div class="p-3 ml-auto speech-bubble">
-                                                You are welcome!
-                                            </div>
-                                            <div class="ml-4"><a href="#"><img src="/static/images/author3.jpg" alt="" class="img-fluid rounded-circle" /></a></div>
-                                        </div>
-
+                                        </ul>
                                     </div>
+                                    
                                     <div class="border-top theme-border px-2 py-3 d-flex position-relative chat-box">
-                                        <input type="text" class="form-control mr-2" placeholder="Type message here ..." />                                               
-                                        <a href="#" class="p-2 ml-2 rounded line-height-21 bg-primary text-white"><i class="icon-cursor align-middle"></i></a>
+                                        <input id="message-input" type="text" class="form-control mr-2" placeholder="Type message here ..." />                                               
+                                        <a href="#" id="send-button" onclick="sendMessage()" title="Send" class="p-2 ml-2 rounded line-height-21 bg-primary text-white"><i class="icon-cursor align-middle"></i></a>
                                     </div>
-
 
                                 </div>
                             </div>
@@ -191,7 +165,130 @@
     </div>
 
 <script>
+
+    let chatId = null;
+    let agentId = null;
+    let senderId = null;
+
+    // Getting each customer's chat
+    const getChats = (pk) => {
+        $.ajax({
+            url: '?action=get_chats&pk=' + pk,
+            method: 'GET',
+            dataType: 'json',
+            delay: 250,
+            success: function(data) {
+                const { chats, customer, ID } = data
+
+                // Getting the Chat ID
+                chatId = chats.length > 0 ? chats[0].chat_id : null;
+                senderId = parseInt(ID)
+                console.log("SENDER ID: ", senderId)
+                console.log("Chat ID: ", chatId)
+                
+                $('#chat-ul').empty();
+
+                let messages = '';
+
+                chats.forEach(chat => {
+                    chat.messages.forEach(message => {
+                        let messageClass = "";
+                        let messageBackground = "";
     
+                        if (message.sender_type === 'customer') {
+                            // Messages from the customer
+                            messageClass = "media d-flex mb-4";
+                            messageBackground = "p-3 mr-auto speech-bubble alt";
+                        } else if (message.sender_type === 'agent') {
+                            // Messages from the agent
+                            messageClass = "media d-flex mb-4";
+                            messageBackground = "p-3 ml-auto speech-bubble";
+                        }
+                        
+                    messages += `
+                    <div class="${messageClass}">
+                        ${message.sender_type === 'customer' ? 
+                            `<div class="p-3 ml-auto speech-bubble">${message.message}</div>` : ''}
+                        ${message.sender_type === 'agent' ? 
+                            `<div class="p-3 mr-auto speech-bubble alt">${message.message}</div>` : ''}
+                        <div class="ml-4">${message.sender_type === 'customer' ? 
+                            `<a href="#"><img src="${image_url}" alt="avatar" class="img-fluid rounded-circle" /></a>` : ''}
+                        </div>
+                    </div>
+                `;
+                    });
+                });
+
+                $('#chat-ul').html(messages)
+                
+                ///
+                
+            }
+        });
+    };
+
+
+    // Sending a message using WebSocket
+    const protocol = location.protocol == "http:" ? "ws:" : "wss:"
+    console.log("PROTOCOL: ", protocol)
+    const websocketURL = protocol + '//' + window.location.host + '/ws/chat/' + "mygroup" + '/'
+    console.log("WEBSOCKET URL: ", websocketURL)
+    console.log("URL: ", location.protocol)
+    var chatSocket = new WebSocket(websocketURL);
+
+    chatSocket.onopen = function() {
+        console.log('WebSocket connection established.');
+    }
+
+    chatSocket.onmessage = function(e) {
+        var data = JSON.parse(e.data);
+
+        let messageSent = '';
+        messageSent += `
+            <div class="media d-flex mb-4">
+                <div class="p-3 ml-auto speech-bubble">
+                    ${data.text}
+                </div>
+                <div class="ml-4"><a href="#"><img src="/static/images/author3.jpg" alt="" class="img-fluid rounded-circle" /></a></div>
+            </div>
+        `
+        $('#chat-ul').prepend(messageSent);
+    }
+
+    chatSocket.onclose = function(e) {
+        console.error('WebSocket connection closed.');
+    }
+
+    function sendMessage() {
+        recipientId = parseInt("{{ request.user.id }}")
+
+        var messageInput = document.getElementById('message-input');
+        var textSent = messageInput.value;
+
+        if (textSent === "") {
+            showSnackbar('alert alert-danger', '<strong>Error!</strong> Cannot send an empty message.');
+        } else {
+            
+            if (chatSocket.readyState === WebSocket.OPEN) {
+                chatSocket.send(JSON.stringify({
+                    'chatId': chatId,
+                    'senderId': senderId,
+                    'recipientId': recipientId,
+                    'text': textSent,
+                }));
+                showSnackbar('alert alert-success', '<strong>Success!</strong> Messsage sent.');
+                console.log("TEXT: ",textSent ,"CHAT ID:",chatId ,"SENDER ID:",senderId ,"RECIPIENT ID:",recipientId);
+                messageInput.value = '';
+            } else {
+                showSnackbar('alert alert-danger', '<strong>Error!</strong> Message not sent.');
+                console.error('WebSocket connection is not open.');
+            }
+        }
+
+    var sendButton = document.getElementById('send-button');
+    sendButton.addEventListener('click', sendMessage); 
+    }
+
 </script>
 
 </main>
