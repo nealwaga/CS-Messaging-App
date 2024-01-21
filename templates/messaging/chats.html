@@ -18,6 +18,9 @@
 
         <!-- START: Card Data-->
         <div class="chat-screen">
+
+            {% include 'partials/snackbar.html' %}
+
             <a href="#" class="chat-contact round-button d-inline-block d-lg-none"><i class="icon-menu"></i></a>
             <a href="#" class="chat-profile d-inline-block d-lg-none"><img class="img-fluid  rounded-circle" src="/static/images/team-3.jpg" width="30" alt=""></a>
             <div class="row row-eq-height">
@@ -187,6 +190,7 @@
                 console.log("Chat ID: ", chatId)
                 
                 $('#chat-ul').empty();
+                $('#message-input').val('');
 
                 let messages = '';
 
